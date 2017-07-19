@@ -163,19 +163,19 @@ public class MainActivity extends AppCompatActivity {
         Canvas canvas = new Canvas(bitmap);
 
         Paint paint1 = new Paint();
-        paint1.setColor(Color.GREEN);
-        //G circle
+        paint1.setColor(Color.BLACK);
+        //G leftmost
         paint1.setStrokeWidth(6);
         paint1.setStyle(Paint.Style.STROKE);
         canvas.drawCircle(80, 600, 70, paint1);
 
-        paint2.setColor(Color.GREEN);
+        paint2.setColor(Color.BLACK);
         //G text
         paint2.setTextSize(60);
         canvas.drawText("G", 58, 620, paint2);
 
         Paint paint3 = new Paint();
-        paint3.setColor(Color.GREEN);
+        paint3.setColor(Color.BLACK);
         //Vertical Line
         paint3.setStrokeCap(Paint.Cap.ROUND);
         paint3.setStrokeWidth(6);
@@ -221,6 +221,32 @@ public class MainActivity extends AppCompatActivity {
 
         //Lower vertical leftmost 1
         canvas.drawLine(300, 1600, 300, 1680, paint5);
+
+        //Lower vertical leftmost 2
+        canvas.drawLine(380, 1600, 380, 1680, paint6);
+
+        Paint paint8 = new Paint();
+        paint8.setColor(Color.BLACK);
+        //Horizontal Line bottom
+        paint8.setStrokeCap(Paint.Cap.ROUND);
+        paint8.setStrokeWidth(15);
+        canvas.drawLine(250, 1680, 500, 1680, paint8);
+        //vertical line connecting the above two
+        canvas.drawLine(380, 1690, 380, 1780, paint3);
+
+        //lower Generator
+        canvas.drawCircle(380, 1850, 70, paint1);
+        //lower generator text
+        canvas.drawText("G", 360, 1870, paint2);
+
+        Paint paint9 = new Paint();
+        paint9.setColor(Color.GREEN);
+        //Vertical line bottom left 3
+        paint9.setStrokeCap(Paint.Cap.ROUND);
+        paint9.setStrokeWidth(6);
+        canvas.drawLine(440, 1540, 440, 1670, paint9);
+        //Slanting line associated with above
+        canvas.drawLine(440, 1540, 900, 1200, paint9);
     }
 
     private void loadCanvas1(){
