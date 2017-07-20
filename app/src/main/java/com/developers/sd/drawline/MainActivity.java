@@ -4,8 +4,13 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
@@ -39,15 +44,16 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    ImageView drawingImageView;
-    Paint paint2 = new Paint();
-    int color = Color.BLACK;
-    double xx,yy;
-
     MqttAndroidClient client;
     String clientId;
     String topic = "topic";
     String Message;
+
+    ImageView drawingImageView;
+    int color = Color.BLACK;
+    double xx,yy;
+    private TabLayout tabLayout;
+    private ViewPager viewPager;
 
     private final String TAG = "TAG";
     public static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 1;
@@ -56,9 +62,15 @@ public class MainActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        drawingImageView = (ImageView) findViewById(R.id.DrawingImageView);
-        loadCanvas();
         new BackgroundFunctions().execute();
+
+
+        viewPager = (ViewPager) findViewById(R.id.viewpager);
+        setupViewPager(viewPager);
+
+        tabLayout = (TabLayout) findViewById(R.id.tabs);
+        tabLayout.setupWithViewPager(viewPager);
+
 
         clientId = MqttClient.generateClientId();
         Log.e("client-id",clientId);
@@ -168,6 +180,7 @@ public class MainActivity extends AppCompatActivity {
         paint1.setStrokeWidth(6);
         paint1.setStyle(Paint.Style.STROKE);
         canvas.drawCircle(80, 900, 40, paint1);
+        Paint paint2 = new Paint();
         paint2.setColor(Color.BLACK);
         //G text 1
         paint2.setTextSize(60);
@@ -479,6 +492,42 @@ public class MainActivity extends AppCompatActivity {
         //vertical connecting 3
         canvas.drawLine(1060,1480,1060,1510,paint26);
 
+    }
+
+    private void setupViewPager(ViewPager viewPager) {
+        ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
+        adapter.addFragment(new DisplayFragment(), "Display");
+        adapter.addFragment(new StatusFragment(), "Status");
+        viewPager.setAdapter(adapter);
+    }
+
+    class ViewPagerAdapter extends FragmentPagerAdapter {
+        private final List<Fragment> mFragmentList = new ArrayList<>();
+        private final List<String> mFragmentTitleList = new ArrayList<>();
+
+        public ViewPagerAdapter(FragmentManager manager) {
+            super(manager);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            return mFragmentList.get(position);
+        }
+
+        @Override
+        public int getCount() {
+            return mFragmentList.size();
+        }
+
+        public void addFragment(Fragment fragment, String title) {
+            mFragmentList.add(fragment);
+            mFragmentTitleList.add(title);
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return mFragmentTitleList.get(position);
+        }
     }
 
     private void mqttpublish(){
