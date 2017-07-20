@@ -4,8 +4,13 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
@@ -39,10 +44,8 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    ImageView drawingImageView;
-    Paint paint2 = new Paint();
-    int color = Color.BLACK;
-    double xx,yy;
+    private TabLayout tabLayout;
+    private ViewPager viewPager;
 
     MqttAndroidClient client;
     String clientId;
@@ -56,9 +59,15 @@ public class MainActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        drawingImageView = (ImageView) findViewById(R.id.DrawingImageView);
-        loadCanvas();
         new BackgroundFunctions().execute();
+
+
+        viewPager = (ViewPager) findViewById(R.id.viewpager);
+        setupViewPager(viewPager);
+
+        tabLayout = (TabLayout) findViewById(R.id.tabs);
+        tabLayout.setupWithViewPager(viewPager);
+
 
         clientId = MqttClient.generateClientId();
         Log.e("client-id",clientId);
@@ -95,229 +104,42 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-
-//        final String[] colorchoice = {"Red","Blue","Green"};
-        final String[] colorchoice = {"ON","OFF"};
-        final ListPopupWindow lpw = new ListPopupWindow(this);
-        lpw.setWidth(800);
-        lpw.setHeight(400);
-        lpw.setHorizontalOffset(200);
-        lpw.setVerticalOffset(600);
-        lpw.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,colorchoice));
-        lpw.setAnchorView(this.findViewById(R.id.DrawingImageView));
-        lpw.setModal(true);
-
-        lpw.setOnItemClickListener(new AdapterView.OnItemClickListener(){
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String item = colorchoice[position];
-                if(item.equals("ON"))
-                {
-                    color = Color.GREEN;
-                }
-                if(item.equals("OFF"))
-                {
-                    color = Color.RED;
-                }
-                lpw.dismiss();
-                loadCanvas1();
-            }
-        });
-
-
-        drawingImageView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event){
-                double x,y;
-                x = event.getX();
-                y = event.getY();
-                xx = x;
-                yy = y;
-                if(x < 100 && y < 560)
-                {
-                    lpw.show();
-                }
-                Log.e("x", String.valueOf(x));
-                Log.e("y", String.valueOf(y));
-                return false;
-            }
-        });
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mqttpublish();
-            }
-        });
     }
 
-    private void loadCanvas(){
-
-        Bitmap bitmap = Bitmap.createBitmap((int) getWindowManager()
-                .getDefaultDisplay().getWidth(), (int) getWindowManager()
-                .getDefaultDisplay().getHeight(), Bitmap.Config.ARGB_8888);
-        drawingImageView.setImageBitmap(bitmap);
-
-        //creating canvas
-        Canvas canvas = new Canvas(bitmap);
-
-        Paint paint1 = new Paint();
-        paint1.setColor(Color.BLACK);
-        //G leftmost
-        paint1.setStrokeWidth(6);
-        paint1.setStyle(Paint.Style.STROKE);
-        canvas.drawCircle(80, 600, 70, paint1);
-
-        paint2.setColor(Color.BLACK);
-        //G text
-        paint2.setTextSize(60);
-        canvas.drawText("G", 58, 620, paint2);
-
-        Paint paint3 = new Paint();
-        paint3.setColor(Color.BLACK);
-        //Vertical Line
-        paint3.setStrokeCap(Paint.Cap.ROUND);
-        paint3.setStrokeWidth(6);
-        canvas.drawLine(80, 675, 80, 750, paint3);
-
-        Paint paint4 = new Paint();
-        paint4.setColor(Color.BLACK);
-        //Horizontal Line
-        paint4.setStrokeCap(Paint.Cap.ROUND);
-        paint4.setStrokeWidth(15);
-        canvas.drawLine(00, 750, 160, 750, paint4);
-
-        Paint paint5 = new Paint();
-        paint5.setColor(Color.GREEN);
-        //Vertical line leftmost 1
-        paint5.setStrokeCap(Paint.Cap.ROUND);
-        paint5.setStrokeWidth(6);
-        canvas.drawLine(20, 760, 20, 1050, paint5);
-
-        Paint paint6 = new Paint();
-        paint6.setColor(Color.GREEN);
-        //VLL2
-        paint6.setStrokeCap(Paint.Cap.ROUND);
-        paint6.setStrokeWidth(6);
-        canvas.drawLine(80, 760, 80, 1000, paint6);
-
-        Paint paint7 = new Paint();
-        paint7.setColor(Color.GREEN);
-        //VLL3
-        paint7.setStrokeCap(Paint.Cap.ROUND);
-        paint7.setStrokeWidth(6);
-        canvas.drawLine(140, 760, 140, 900, paint7);
-
-
-        //Slant leftmost line 1
-        canvas.drawLine(20, 1050, 300, 1600, paint5);
-
-        //SLL2
-        canvas.drawLine(80, 1000, 380, 1600, paint6);
-
-        //SLL3
-        canvas.drawLine(140, 900, 800, 1200, paint7);
-
-        //Lower vertical leftmost 1
-        canvas.drawLine(300, 1600, 300, 1680, paint5);
-
-        //Lower vertical leftmost 2
-        canvas.drawLine(380, 1600, 380, 1680, paint6);
-
-        Paint paint8 = new Paint();
-        paint8.setColor(Color.BLACK);
-        //Horizontal Line bottom
-        paint8.setStrokeCap(Paint.Cap.ROUND);
-        paint8.setStrokeWidth(15);
-        canvas.drawLine(250, 1680, 500, 1680, paint8);
-        //vertical line connecting the above two
-        canvas.drawLine(380, 1690, 380, 1780, paint3);
-
-        //lower Generator
-        canvas.drawCircle(380, 1850, 70, paint1);
-        //lower generator text
-        canvas.drawText("G", 360, 1870, paint2);
-
-        Paint paint9 = new Paint();
-        paint9.setColor(Color.GREEN);
-        //Vertical line bottom left 3
-        paint9.setStrokeCap(Paint.Cap.ROUND);
-        paint9.setStrokeWidth(6);
-        canvas.drawLine(440, 1540, 440, 1670, paint9);
-        //Slanting line associated with above
-        canvas.drawLine(440, 1540, 900, 1200, paint9);
+    private void setupViewPager(ViewPager viewPager) {
+        ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
+        adapter.addFragment(new DisplayFragment(), "Display");
+        adapter.addFragment(new StatusFragment(), "Status");
+        viewPager.setAdapter(adapter);
     }
 
-    private void loadCanvas1(){
+    class ViewPagerAdapter extends FragmentPagerAdapter {
+        private final List<Fragment> mFragmentList = new ArrayList<>();
+        private final List<String> mFragmentTitleList = new ArrayList<>();
 
-        Bitmap bitmap = Bitmap.createBitmap((int) getWindowManager()
-                .getDefaultDisplay().getWidth(), (int) getWindowManager()
-                .getDefaultDisplay().getHeight(), Bitmap.Config.ARGB_8888);
-        drawingImageView.setImageBitmap(bitmap);
+        public ViewPagerAdapter(FragmentManager manager) {
+            super(manager);
+        }
 
-        //creating canvas
-        Canvas canvas = new Canvas(bitmap);
+        @Override
+        public Fragment getItem(int position) {
+            return mFragmentList.get(position);
+        }
 
-        Paint paint1 = new Paint();
-        paint1.setColor(color);
-        //G circle
-        paint1.setStrokeWidth(6);
-        paint1.setStyle(Paint.Style.STROKE);
-        canvas.drawCircle(80, 600, 70, paint1);
+        @Override
+        public int getCount() {
+            return mFragmentList.size();
+        }
 
-        paint2.setColor(Color.GREEN);
-        //G text
-        paint2.setTextSize(60);
-        canvas.drawText("G", 58, 620, paint2);
+        public void addFragment(Fragment fragment, String title) {
+            mFragmentList.add(fragment);
+            mFragmentTitleList.add(title);
+        }
 
-        Paint paint3 = new Paint();
-        paint3.setColor(Color.GREEN);
-        //Vertical Line
-        paint3.setStrokeCap(Paint.Cap.ROUND);
-        paint3.setStrokeWidth(6);
-        canvas.drawLine(80, 675, 80, 750, paint3);
-
-        Paint paint4 = new Paint();
-        paint4.setColor(Color.BLACK);
-        //Horizontal Line
-        paint4.setStrokeCap(Paint.Cap.ROUND);
-        paint4.setStrokeWidth(15);
-        canvas.drawLine(00, 750, 160, 750, paint4);
-
-        Paint paint5 = new Paint();
-        paint5.setColor(Color.GREEN);
-        //Vertical line leftmost 1
-        paint5.setStrokeCap(Paint.Cap.ROUND);
-        paint5.setStrokeWidth(6);
-        canvas.drawLine(20, 760, 20, 1050, paint5);
-
-        Paint paint6 = new Paint();
-        paint6.setColor(Color.GREEN);
-        //VLL2
-        paint6.setStrokeCap(Paint.Cap.ROUND);
-        paint6.setStrokeWidth(6);
-        canvas.drawLine(80, 760, 80, 1000, paint6);
-
-        Paint paint7 = new Paint();
-        paint7.setColor(Color.GREEN);
-        //VLL3
-        paint7.setStrokeCap(Paint.Cap.ROUND);
-        paint7.setStrokeWidth(6);
-        canvas.drawLine(140, 760, 140, 900, paint7);
-
-
-        //Slant leftmost line 1
-        canvas.drawLine(20, 1050, 300, 1600, paint5);
-
-        //SLL2
-        canvas.drawLine(80, 1000, 380, 1600, paint6);
-
-        //SLL3
-        canvas.drawLine(140, 900, 800, 1200, paint7);
-
-        //Lower vertical leftmost 1
-        canvas.drawLine(300, 1600, 300, 1680, paint5);
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return mFragmentTitleList.get(position);
+        }
     }
 
     private void mqttpublish(){
