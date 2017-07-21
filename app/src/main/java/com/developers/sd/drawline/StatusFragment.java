@@ -184,6 +184,19 @@ public class StatusFragment extends Fragment {
             else {
                 status.setChecked(false);
             }
+            status.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    if(isChecked){
+                        mline.setStatus(1);
+                        Log.e("set checked", String.valueOf(mline.getTitle()) +" = " +mline.getStatus());
+                    }
+                    if(!isChecked){
+                        mline.setStatus(0);
+                        Log.e("set checked", String.valueOf(mline.getTitle()) +" = " +mline.getStatus());
+                    }
+                }
+            });
         }
     }
 
