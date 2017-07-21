@@ -27,6 +27,7 @@ public class DisplayFragment extends Fragment {
     double xx,yy;
 
 
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

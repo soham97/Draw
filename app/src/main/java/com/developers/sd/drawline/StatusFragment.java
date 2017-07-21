@@ -1,18 +1,23 @@
 package com.developers.sd.drawline;
 
 import android.content.Context;
+import android.graphics.*;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
@@ -31,6 +36,7 @@ import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class StatusFragment extends Fragment {
@@ -38,12 +44,14 @@ public class StatusFragment extends Fragment {
     private RecyclerView recyclerView;
     private LineAdapter lineAdapter;
     private List<Line> lineList = new ArrayList<>();
+    private List<Integer> ars = new ArrayList<>();
 
     private final String TAG = "StatusFragment";
 
     private MqttAndroidClient client;
     private String clientId;
     private String topic = "topic/fog";
+    private FloatingActionButton fab;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -68,15 +76,30 @@ public class StatusFragment extends Fragment {
         }
         lineAdapter.notifyDataSetChanged();
 
-        clientId = MqttClient.generateClientId();
+        fab = (FloatingActionButton) view.findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MqttMessage status = new MqttMessage(Arrays.toString(lineAdapter.getStatusList()).getBytes());
+                Log.e(TAG, status.toString());
+                try {
+                    client.publish(topic, status);
+                } catch (MqttException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+
+                clientId = MqttClient.generateClientId();
         client = new MqttAndroidClient(this.getContext(), "tcp://broker.hivemq.com:1883", clientId);
         client.setCallback(new MqttCallbackHandler(client));
 
         try {
             MqttConnectOptions options = new MqttConnectOptions();
             options.setMqttVersion(MqttConnectOptions.MQTT_VERSION_3_1);
-            //options.setUserName("fog");
-            //options.setPassword("1234".toCharArray());
+//            options.setUserName("fog");
+//            options.setPassword("1234".toCharArray());
             IMqttToken token = client.connect(options);
 
             token.setActionCallback(new IMqttActionListener() {
@@ -91,7 +114,7 @@ public class StatusFragment extends Fragment {
                     try {
                         client.publish(topic, message);
                         Log.e("mqtt", "Message published");
-                        MqttMessage status = new MqttMessage(lineAdapter.getStatusList().toString().getBytes());
+                        MqttMessage status = new MqttMessage(Arrays.toString(lineAdapter.getStatusList()).getBytes());
                         Log.e(TAG, status.toString());
                         client.publish(topic, status);
                     }
@@ -140,59 +163,57 @@ public class StatusFragment extends Fragment {
         return view;
     }
 
+    public class LineHolder extends RecyclerView.ViewHolder {
 
-    public class LineAdapter extends RecyclerView.Adapter<LineAdapter.MyViewHolder> {
+        public Line mline;
+        public TextView title;
+        public ToggleButton status;
 
-        private List<Line> lineList;
-
-        public class MyViewHolder extends RecyclerView.ViewHolder {
-
-            public TextView title;
-            public ToggleButton status;
-
-            public MyViewHolder(View view) {
-                super(view);
-                title = (TextView) view.findViewById(R.id.title);
-                status = (ToggleButton) view.findViewById(R.id.status);
-            }
+        public LineHolder(final View itemView) {
+            super(itemView);
+            title = (TextView) itemView.findViewById(R.id.title);
+            status = (ToggleButton) itemView.findViewById(R.id.status);
         }
 
+        public void bindLine(Line line){
+            mline = line;
+            title.setText(mline.getTitle());
+            if(mline.getStatus() == 1) {
+                status.setChecked(true);
+            }
+            else {
+                status.setChecked(false);
+            }
+        }
+    }
 
-        public LineAdapter(List<Line> lineList) {
-            this.lineList = lineList;
+    public class LineAdapter extends RecyclerView.Adapter<LineHolder>{
+
+        public LineAdapter(List<Line> lines) {
+            lineList = lines;
         }
 
         @Override
-        public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View itemView = LayoutInflater.from(parent.getContext())
+        public LineHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
+            View view = layoutInflater
                     .inflate(R.layout.item_list, parent, false);
-
-            return new MyViewHolder(itemView);
+            return new LineHolder(view);
         }
 
         @Override
-        public void onBindViewHolder(MyViewHolder holder, int position) {
+        public void onBindViewHolder(LineHolder holder, int position) {
             final Line line = lineList.get(position);
-            holder.title.setText(line.getTitle());
-            if (line.getStatus() == 0) {
-                holder.status.setChecked(true);
-            } else {
-                holder.status.setChecked(false);
-            }
-            holder.status.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    if (isChecked) {
-                        line.setStatus(0);
-                    } else {
-                        line.setStatus(1);
-                    }
-                }
-            });
+            holder.bindLine(line);
         }
 
         @Override
         public int getItemCount() {
             return lineList.size();
+        }
+
+        public void setNotes(List<Line> lines) {
+            lineList = lines;
         }
 
         public int[] getStatusList() {
@@ -202,7 +223,6 @@ public class StatusFragment extends Fragment {
             }
             return status_list;
         }
-
     }
 
     class MqttCallbackHandler implements MqttCallbackExtended {
@@ -227,11 +247,30 @@ public class StatusFragment extends Fragment {
         @Override
         public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception {
             Log.e("mqtt", mqttMessage.toString());
+            ars = s2a(mqttMessage.toString());
+            Log.e("s2a", String.valueOf(ars));
+            setStatusList();
+            lineAdapter.notifyDataSetChanged();
         }
 
         @Override
         public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {
 
+        }
+    }
+
+    public List<Integer> s2a(String string){
+        List<Integer> status = new ArrayList<>();
+        for(int i = 1; i< string.length(); i =i+3){
+            int decimal = (int) string.charAt(i) - 48;
+            status.add(decimal);
+        }
+        return status;
+    }
+
+    public void setStatusList() {
+        for (int i=0; i<=19; i++) {
+            lineList.get(i).setStatus(ars.get(i));
         }
     }
 
