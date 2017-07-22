@@ -3,6 +3,7 @@ package com.developers.sd.drawline;
 import android.content.Context;
 import android.graphics.*;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -76,7 +77,8 @@ public class StatusFragment extends Fragment {
         }
         lineAdapter.notifyDataSetChanged();
 
-        fab = (FloatingActionButton) view.findViewById(R.id.fab);
+        fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
+//        fab = (FloatingActionButton) view.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

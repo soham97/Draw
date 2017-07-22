@@ -13,6 +13,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
@@ -30,17 +31,18 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+    private Toolbar toolbar;
     private TabLayout tabLayout;
     private ViewPager viewPager;
-
-    private final String TAG = "TAG";
     public static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 1;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        new BackgroundFunctions().execute();
+
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         setupViewPager(viewPager);
@@ -51,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFragment(new DisplayFragment(), "Display");
+        adapter.addFragment(new DisplayFragment(), "System");
         adapter.addFragment(new StatusFragment(), "Status");
         viewPager.setAdapter(adapter);
     }

@@ -8,16 +8,16 @@
     android:paddingTop="10dp"
     tools:context="com.developers.sd.drawline.DisplayFragment" >
 
-    <HorizontalScrollView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+    <!--<HorizontalScrollView-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content">-->
 
-        <ImageView
+        <com.github.chrisbanes.photoview.PhotoView
             android:id="@+id/DrawingImageView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="fitXY"/>
 
-    </HorizontalScrollView>
+    <!--</HorizontalScrollView>-->
 
 </RelativeLayout>

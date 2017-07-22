@@ -1,6 +1,7 @@
 package com.developers.sd.drawline;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -8,6 +9,7 @@ import android.graphics.Paint;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.ListPopupWindow;
 import android.util.Log;
@@ -19,9 +21,12 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 
+import com.github.chrisbanes.photoview.PhotoView;
+
 public class DisplayFragment extends Fragment {
 
-    ImageView drawingImageView;
+//    ImageView drawingImageView;
+    PhotoView drawingImageView;
     Paint paint2 = new Paint();
     int color = Color.BLACK;
     double xx,yy;
@@ -38,14 +43,16 @@ public class DisplayFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_display, container, false);
-        drawingImageView = (ImageView) view.findViewById(R.id.DrawingImageView);
+        FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
+        drawingImageView = (PhotoView) view.findViewById(R.id.DrawingImageView);
+//        drawingImageView = (ImageView) view.findViewById(R.id.DrawingImageView);
         loadCanvas();
         return view;
     }
 
     private void loadCanvas(){
 
-        Bitmap bitmap = Bitmap.createBitmap((int) 2000, (int) 2000, Bitmap.Config.ARGB_8888);
+        Bitmap bitmap = Bitmap.createBitmap((int) 1600, (int) 2000, Bitmap.Config.ARGB_8888);
         drawingImageView.setImageBitmap(bitmap);
 
         //creating canvas
