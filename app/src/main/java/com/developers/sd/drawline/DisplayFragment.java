@@ -23,6 +23,21 @@ import android.widget.ImageView;
 
 import com.github.chrisbanes.photoview.PhotoView;
 
+import org.eclipse.paho.android.service.MqttAndroidClient;
+import org.eclipse.paho.client.mqttv3.IMqttActionListener;
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.IMqttToken;
+import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
+import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class DisplayFragment extends Fragment {
 
 //    ImageView drawingImageView;
@@ -30,6 +45,14 @@ public class DisplayFragment extends Fragment {
     Paint paint2 = new Paint();
     int color = Color.BLACK;
     double xx,yy;
+
+    private final String TAG = "DisplayFragment";
+
+    private MqttAndroidClient client;
+    private String clientId;
+    private String topic = "topic/fog";
+    private FloatingActionButton fab;
+    private List<Integer> ars = new ArrayList<>();
 
 
 
@@ -46,6 +69,62 @@ public class DisplayFragment extends Fragment {
         FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
         drawingImageView = (PhotoView) view.findViewById(R.id.DrawingImageView);
 //        drawingImageView = (ImageView) view.findViewById(R.id.DrawingImageView);
+
+        clientId = MqttClient.generateClientId();
+        client = new MqttAndroidClient(this.getContext(), "tcp://broker.hivemq.com:1883", clientId);
+        client.setCallback(new MqttCallbackHandler(client));
+
+        try {
+            MqttConnectOptions options = new MqttConnectOptions();
+            options.setMqttVersion(MqttConnectOptions.MQTT_VERSION_3_1);
+//            options.setUserName("fog");
+//            options.setPassword("1234".toCharArray());
+            IMqttToken token = client.connect(options);
+
+            token.setActionCallback(new IMqttActionListener() {
+                @Override
+                public void onSuccess(IMqttToken asyncActionToken) {
+                    // We are connected
+                    Log.e(TAG, "onSuccess");
+                    MqttMessage message = new MqttMessage("Hello, I am an Android Mqtt Client.".getBytes());
+                    message.setQos(2);
+                    message.setRetained(false);
+
+                    try {
+                        IMqttToken subToken = client.subscribe(topic, 1);
+                        subToken.setActionCallback(new IMqttActionListener() {
+                            @Override
+                            public void onSuccess(IMqttToken asyncActionToken) {
+                                Log.e("D-mqtt", "subscription success");
+                            }
+
+                            @Override
+                            public void onFailure(IMqttToken asyncActionToken,
+                                                  Throwable exception) {
+                                // The subscription could not be performed, maybe the user was not
+                                // authorized to subscribe on the specified topic e.g. using wildcards
+                                Log.e("D-mqtt", "subscription failed");
+
+                            }
+                        });
+
+                    } catch (MqttException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+
+                @Override
+                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                    // Something went wrong e.g. connection timeout or firewall problems
+                    Log.e(TAG, "D-onFailure");
+
+                }
+            });
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
+
         loadCanvas();
         return view;
     }
@@ -57,6 +136,10 @@ public class DisplayFragment extends Fragment {
 
         //creating canvas
         Canvas canvas = new Canvas(bitmap);
+
+        Paint paint0 = new Paint();
+        paint0.setColor(Color.BLACK);
+        paint0.setTextSize(40);
 
         Paint paint1 = new Paint();
         paint1.setColor(Color.BLACK);
@@ -89,6 +172,8 @@ public class DisplayFragment extends Fragment {
         paint5.setStrokeCap(Paint.Cap.ROUND);
         paint5.setStrokeWidth(6);
         canvas.drawLine(50, 990, 50, 1050, paint5);
+        //line 1 text
+        canvas.drawText("1",80,1300,paint0);
         //Slant line 1
         canvas.drawLine(50, 1050, 200, 1400, paint5);
         //Lower vertical line 1
@@ -98,6 +183,8 @@ public class DisplayFragment extends Fragment {
         Paint paint7 = new Paint();
         paint7.setColor(Color.GREEN);
         //line 2
+        //line 2 text
+        canvas.drawText("2",300,1070,paint0);
         paint7.setStrokeCap(Paint.Cap.ROUND);
         paint7.setStrokeWidth(6);
         canvas.drawLine(100, 990, 100, 1030, paint7);
@@ -120,6 +207,8 @@ public class DisplayFragment extends Fragment {
         paint9.setColor(Color.GREEN);
         //line 5
         paint9.setStrokeCap(Paint.Cap.ROUND);
+        //line 5 text
+        canvas.drawText("5",400,1300,paint0);
         paint9.setStrokeWidth(6);
         //vertical part of 5
         canvas.drawLine(230, 1445, 230, 1380, paint9);
@@ -137,6 +226,8 @@ public class DisplayFragment extends Fragment {
         paint10.setStrokeCap(Paint.Cap.ROUND);
         paint10.setStrokeWidth(6);
         canvas.drawLine(630, 1144, 630, 982, paint10);
+        //line 10 text
+        canvas.drawText("10",650,1100,paint0);
 
         //Bus 6
         canvas.drawLine(550, 982, 740, 982, paint4);
@@ -160,6 +251,8 @@ public class DisplayFragment extends Fragment {
         canvas.drawLine(580, 920, 350, 630, paint11);
         //vertical connecting 12
         canvas.drawLine(350,630,350,590,paint11);
+        //line 12 text
+        canvas.drawText("12",380,800,paint0);
 
         //Bus 12
         canvas.drawLine(340,580,420,580,paint4);
@@ -177,6 +270,8 @@ public class DisplayFragment extends Fragment {
         canvas.drawLine(480, 610, 550, 300, paint12);
         //vertical connecting 19
         canvas.drawLine(550,300,550,250,paint12);
+        //line 19 text
+        canvas.drawText("19",440,450,paint0);
 
         //Bus 13
         canvas.drawLine(530,240,700,240,paint4);
@@ -187,6 +282,8 @@ public class DisplayFragment extends Fragment {
         paint13.setStrokeCap(Paint.Cap.ROUND);
         paint13.setStrokeWidth(6);
         canvas.drawLine(630, 972, 630, 250, paint13);
+        //line 13 text
+        canvas.drawText("13",580,700,paint0);
 
         //Line 20
         Paint paint14 = new Paint();
@@ -201,6 +298,8 @@ public class DisplayFragment extends Fragment {
         canvas.drawLine(920, 500, 980, 500, paint14);
         //vertical connecting 20
         canvas.drawLine(980,500,980,440,paint14);
+        //line 20 text
+        canvas.drawText("20",780,380,paint0);
 
         //Bus 14
         canvas.drawLine(960,430,1050,430,paint4);
@@ -217,6 +316,9 @@ public class DisplayFragment extends Fragment {
         canvas.drawLine(690, 922, 790, 822, paint15);
         //vertical connecting 11
         canvas.drawLine(790,822,790,760,paint15);
+        //line 11 text
+        canvas.drawText("11",710,860,paint0);
+
 
         //Bus 11
         canvas.drawLine(770,750,870,750,paint4);
@@ -234,6 +336,8 @@ public class DisplayFragment extends Fragment {
         canvas.drawLine(950, 922, 980, 922, paint16);
         //vertical connecting 18
         canvas.drawLine(980,922,980,840,paint16);
+        //line 18 text
+        canvas.drawText("18",890,860,paint0);
 
         //Bus 10
         canvas.drawLine(970,830,1050,830,paint4);
@@ -249,6 +353,8 @@ public class DisplayFragment extends Fragment {
         canvas.drawLine(1025, 870, 1100, 930, paint17);
         //vertical connecting 16
         canvas.drawLine(1100,930,1100,960,paint17);
+        //line 16 text
+        canvas.drawText("16",1020,940,paint0);
 
         //Bus 9
         canvas.drawLine(1050,970,1200,970,paint4);
@@ -264,6 +370,8 @@ public class DisplayFragment extends Fragment {
         canvas.drawLine(1040, 470, 1150, 920, paint18);
         //vertical connecting 17
         canvas.drawLine(1150,920,1150,960,paint18);
+        //line 17 text
+        canvas.drawText("17",1100,700,paint0);
 
         //Line 15
         Paint paint19 = new Paint();
@@ -276,6 +384,8 @@ public class DisplayFragment extends Fragment {
         canvas.drawLine(1150, 1000, 1250, 1050, paint19);
         //vertical connecting 15
         canvas.drawLine(1250,1050,1250,1090,paint19);
+        //line 15 text
+        canvas.drawText("15",1200,1025,paint0);
 
         //Bus 7
         canvas.drawLine(1235,1100,1325,1100,paint4);
@@ -285,12 +395,14 @@ public class DisplayFragment extends Fragment {
         paint20.setColor(Color.GREEN);
         paint20.setStrokeCap(Paint.Cap.ROUND);
         paint20.setStrokeWidth(6);
-        //vertical part of 15
+        //vertical part of 8
         canvas.drawLine(1250, 1110, 1250, 1160, paint20);
         //Slanting line associated with 15
         canvas.drawLine(1250, 1160, 1150, 1210, paint20);
-        //vertical connecting 15
+        //vertical connecting 8
         canvas.drawLine(1150,1210,1150,1230,paint20);
+        //line 8 text
+        canvas.drawText("8",1200,1220,paint0);
 
         //Bus 4
         canvas.drawLine(1025,1240,1200,1240,paint4);
@@ -302,6 +414,8 @@ public class DisplayFragment extends Fragment {
         paint21.setStrokeWidth(6);
         //vertical connecting 9
         canvas.drawLine(1100,980,1100,1230,paint17);
+        //line 9 text
+        canvas.drawText("9",1050,1100,paint0);
 
         //Line 14
         Paint paint22 = new Paint();
@@ -312,6 +426,8 @@ public class DisplayFragment extends Fragment {
         canvas.drawLine(1300 ,1090,1300,1020,paint22);
         //horizontal connecting 14
         canvas.drawLine(1300 ,1020,1450,1020,paint22);
+        //line 14 text
+        canvas.drawText("14",1350,1000,paint0);
 
         //Bus 8
         canvas.drawLine(1455,980,1455,1050,paint4);
@@ -334,6 +450,8 @@ public class DisplayFragment extends Fragment {
         canvas.drawLine(660, 1280, 1050, 1280, paint23);
         //vertical connecting 7
         canvas.drawLine(1050,1280,1050,1250,paint23);
+        //line 7 text
+        canvas.drawText("7",800,1260,paint0);
 
         //Line 4
         Paint paint24 = new Paint();
@@ -346,6 +464,8 @@ public class DisplayFragment extends Fragment {
         canvas.drawLine(280, 1410, 1090, 1320, paint24);
         //vertical connecting 4
         canvas.drawLine(1090,1320,1090,1250,paint24);
+        //line 4 text
+        canvas.drawText("4",600,1360,paint0);
 
         //Line 6
         Paint paint25 = new Paint();
@@ -354,6 +474,8 @@ public class DisplayFragment extends Fragment {
         paint25.setStrokeWidth(6);
         //vertical part of 6
         canvas.drawLine(1120, 1250, 1120, 1520, paint25);
+        //line 6 text
+        canvas.drawText("6",1090,1400,paint0);
 
         //Bus 3
         canvas.drawLine(1020,1520,1220,1520,paint4);
@@ -375,6 +497,8 @@ public class DisplayFragment extends Fragment {
         canvas.drawLine(280, 1480, 1060, 1480, paint26);
         //vertical connecting 3
         canvas.drawLine(1060,1480,1060,1510,paint26);
+        //line 3 text
+        canvas.drawText("3",800,1460,paint0);
 
     }
 
@@ -385,6 +509,57 @@ public class DisplayFragment extends Fragment {
             loadCanvas();
             return null;
         }
+    }
+
+    class MqttCallbackHandler implements MqttCallbackExtended {
+
+        private final MqttAndroidClient client;
+
+        public MqttCallbackHandler (MqttAndroidClient client)
+        {
+            this.client=client;
+        }
+
+        @Override
+        public void connectComplete(boolean b, String s) {
+            Log.w("mqtt", s);
+        }
+
+        @Override
+        public void connectionLost(Throwable throwable) {
+
+        }
+
+        @Override
+        public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception {
+            Log.e("mqtt-d", mqttMessage.toString());
+            ars = s2a(mqttMessage.toString());
+            Log.e("s2a-d", String.valueOf(ars));
+        }
+
+        @Override
+        public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {
+
+        }
+    }
+
+    public List<Integer> s2a(String string){
+        List<Integer> status = new ArrayList<>();
+        for(int i = 1; i< string.length(); i =i+3){
+            int decimal = (int) string.charAt(i) - 48;
+            status.add(decimal);
+        }
+        return status;
+    }
+
+    public List<Integer> i2c(List<Integer> array){
+        List<Integer> status = new ArrayList<>();
+        for(int i = 1; i< array.size(); i++){
+            if(array.get(i)== 0){status.add(Color.BLACK);}
+            if(array.get(i)== 1){status.add(Color.GREEN);}
+            if(array.get(i)== 2){status.add(Color.RED);}
+        }
+        return status;
     }
 
 }
