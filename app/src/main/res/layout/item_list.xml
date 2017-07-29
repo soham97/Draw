@@ -7,6 +7,7 @@
     android:orientation="horizontal" >
 
     <TextView
+        android:layout_marginTop="10dp"
         android:id="@+id/title"
         android:textSize="20dp"
         android:textStyle="bold"

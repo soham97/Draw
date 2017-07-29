@@ -5,6 +5,7 @@ import android.graphics.*;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -55,8 +56,17 @@ public class StatusFragment extends Fragment {
     private FloatingActionButton fab;
 
     @Override
+    public void onSaveInstanceState(Bundle onOrientChange) {
+        super.onSaveInstanceState(onOrientChange);
+        onOrientChange.putParcelableArrayList("linelist", (ArrayList<? extends Parcelable>) lineList);
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(savedInstanceState!= null){
+            lineList = savedInstanceState.getParcelableArrayList("linelist");
+        }
     }
 
     @Override

@@ -20,6 +20,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.github.chrisbanes.photoview.PhotoView;
 
@@ -53,12 +54,24 @@ public class DisplayFragment extends Fragment {
     private String topic = "topic/fog";
     private FloatingActionButton fab;
     private List<Integer> ars = new ArrayList<>();
+    private List<Integer> colors = new ArrayList<>();
 
+    private boolean check = true;
 
+    @Override
+    public void onSaveInstanceState(Bundle onOrientChange) {
+        super.onSaveInstanceState(onOrientChange);
+        onOrientChange.putIntegerArrayList("colors", (ArrayList<Integer>) colors);
+        onOrientChange.putBoolean("check",check);
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(savedInstanceState!= null){
+            colors = savedInstanceState.getIntegerArrayList("colors");
+            check = savedInstanceState.getBoolean("check");
+        }
     }
 
     @Override
@@ -69,6 +82,14 @@ public class DisplayFragment extends Fragment {
         FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
         drawingImageView = (PhotoView) view.findViewById(R.id.DrawingImageView);
 //        drawingImageView = (ImageView) view.findViewById(R.id.DrawingImageView);
+
+        if(check){
+            List<Integer> status = new ArrayList<>();
+            status = initArrayList();
+            colors = i2c(status);
+            Log.e("colors", String.valueOf(colors));
+            check = false;
+        }
 
         clientId = MqttClient.generateClientId();
         client = new MqttAndroidClient(this.getContext(), "tcp://broker.hivemq.com:1883", clientId);
@@ -86,9 +107,6 @@ public class DisplayFragment extends Fragment {
                 public void onSuccess(IMqttToken asyncActionToken) {
                     // We are connected
                     Log.e(TAG, "onSuccess");
-                    MqttMessage message = new MqttMessage("Hello, I am an Android Mqtt Client.".getBytes());
-                    message.setQos(2);
-                    message.setRetained(false);
 
                     try {
                         IMqttToken subToken = client.subscribe(topic, 1);
@@ -167,7 +185,8 @@ public class DisplayFragment extends Fragment {
         canvas.drawLine(00, 980, 160, 980, paint4);
 
         Paint paint5 = new Paint();
-        paint5.setColor(Color.GREEN);
+//        paint5.setColor(Color.GREEN);
+        paint5.setColor(colors.get(0));
         //line 1
         paint5.setStrokeCap(Paint.Cap.ROUND);
         paint5.setStrokeWidth(6);
@@ -181,7 +200,8 @@ public class DisplayFragment extends Fragment {
 
 
         Paint paint7 = new Paint();
-        paint7.setColor(Color.GREEN);
+//        paint7.setColor(Color.GREEN);
+        paint7.setColor(colors.get(1));
         //line 2
         //line 2 text
         canvas.drawText("2",300,1070,paint0);
@@ -204,7 +224,8 @@ public class DisplayFragment extends Fragment {
         canvas.drawText("G", 210, 1550, paint2);
 
         Paint paint9 = new Paint();
-        paint9.setColor(Color.GREEN);
+//        paint9.setColor(Color.GREEN);
+        paint9.setColor(colors.get(4));
         //line 5
         paint9.setStrokeCap(Paint.Cap.ROUND);
         //line 5 text
@@ -222,7 +243,8 @@ public class DisplayFragment extends Fragment {
 
         //line 10
         Paint paint10 = new Paint();
-        paint10.setColor(Color.GREEN);
+//        paint10.setColor(Color.GREEN);
+        paint10.setColor(colors.get(9));
         paint10.setStrokeCap(Paint.Cap.ROUND);
         paint10.setStrokeWidth(6);
         canvas.drawLine(630, 1144, 630, 982, paint10);
@@ -242,7 +264,8 @@ public class DisplayFragment extends Fragment {
 
         //Line 12
         Paint paint11 = new Paint();
-        paint11.setColor(Color.GREEN);
+//        paint11.setColor(Color.GREEN);
+        paint11.setColor(colors.get(10));
         paint11.setStrokeCap(Paint.Cap.ROUND);
         paint11.setStrokeWidth(6);
         //vertical part of 12
@@ -259,7 +282,8 @@ public class DisplayFragment extends Fragment {
 
         //Line 19
         Paint paint12 = new Paint();
-        paint12.setColor(Color.GREEN);
+//        paint12.setColor(Color.GREEN);
+        paint12.setColor(colors.get(18));
         paint12.setStrokeCap(Paint.Cap.ROUND);
         paint12.setStrokeWidth(6);
         //vertical part of 19
@@ -278,7 +302,8 @@ public class DisplayFragment extends Fragment {
 
         //Line 13
         Paint paint13 = new Paint();
-        paint13.setColor(Color.GREEN);
+//        paint13.setColor(Color.GREEN);
+        paint13.setColor(colors.get(12));
         paint13.setStrokeCap(Paint.Cap.ROUND);
         paint13.setStrokeWidth(6);
         canvas.drawLine(630, 972, 630, 250, paint13);
@@ -287,7 +312,8 @@ public class DisplayFragment extends Fragment {
 
         //Line 20
         Paint paint14 = new Paint();
-        paint14.setColor(Color.GREEN);
+//        paint14.setColor(Color.GREEN);
+        paint14.setColor(colors.get(19));
         paint14.setStrokeCap(Paint.Cap.ROUND);
         paint14.setStrokeWidth(6);
         //vertical part of 20
@@ -307,7 +333,8 @@ public class DisplayFragment extends Fragment {
 
         //Line 11
         Paint paint15 = new Paint();
-        paint15.setColor(Color.GREEN);
+//        paint15.setColor(Color.GREEN);
+        paint15.setColor(colors.get(10));
         paint15.setStrokeCap(Paint.Cap.ROUND);
         paint15.setStrokeWidth(6);
         //vertical part of 11
@@ -325,7 +352,8 @@ public class DisplayFragment extends Fragment {
 
         //Line 18
         Paint paint16 = new Paint();
-        paint16.setColor(Color.GREEN);
+//        paint16.setColor(Color.GREEN);
+        paint16.setColor(colors.get(17));
         paint16.setStrokeCap(Paint.Cap.ROUND);
         paint16.setStrokeWidth(6);
         //vertical part of 18
@@ -344,7 +372,8 @@ public class DisplayFragment extends Fragment {
 
         //Line 16
         Paint paint17 = new Paint();
-        paint17.setColor(Color.GREEN);
+//        paint17.setColor(Color.GREEN);
+        paint17.setColor(colors.get(15));
         paint17.setStrokeCap(Paint.Cap.ROUND);
         paint17.setStrokeWidth(6);
         //vertical part of 16
@@ -361,7 +390,8 @@ public class DisplayFragment extends Fragment {
 
         //Line 17
         Paint paint18 = new Paint();
-        paint18.setColor(Color.GREEN);
+//        paint18.setColor(Color.GREEN);
+        paint18.setColor(colors.get(16));
         paint18.setStrokeCap(Paint.Cap.ROUND);
         paint18.setStrokeWidth(6);
         //vertical part of 17
@@ -375,7 +405,8 @@ public class DisplayFragment extends Fragment {
 
         //Line 15
         Paint paint19 = new Paint();
-        paint19.setColor(Color.GREEN);
+//        paint19.setColor(Color.GREEN);
+        paint19.setColor(colors.get(14));
         paint19.setStrokeCap(Paint.Cap.ROUND);
         paint19.setStrokeWidth(6);
         //vertical part of 15
@@ -393,6 +424,7 @@ public class DisplayFragment extends Fragment {
         //Line 8
         Paint paint20 = new Paint();
         paint20.setColor(Color.GREEN);
+        paint20.setColor(colors.get(7));
         paint20.setStrokeCap(Paint.Cap.ROUND);
         paint20.setStrokeWidth(6);
         //vertical part of 8
@@ -409,7 +441,8 @@ public class DisplayFragment extends Fragment {
 
         //Line 9
         Paint paint21 = new Paint();
-        paint21.setColor(Color.GREEN);
+//        paint21.setColor(Color.GREEN);
+        paint21.setColor(colors.get(8));
         paint21.setStrokeCap(Paint.Cap.ROUND);
         paint21.setStrokeWidth(6);
         //vertical connecting 9
@@ -419,7 +452,8 @@ public class DisplayFragment extends Fragment {
 
         //Line 14
         Paint paint22 = new Paint();
-        paint22.setColor(Color.GREEN);
+//        paint22.setColor(Color.GREEN);
+        paint22.setColor(colors.get(13));
         paint22.setStrokeCap(Paint.Cap.ROUND);
         paint22.setStrokeWidth(6);
         //vertical connecting 14
@@ -441,7 +475,8 @@ public class DisplayFragment extends Fragment {
 
         //Line 7
         Paint paint23 = new Paint();
-        paint23.setColor(Color.GREEN);
+//        paint23.setColor(Color.GREEN);
+        paint23.setColor(colors.get(6));
         paint23.setStrokeCap(Paint.Cap.ROUND);
         paint23.setStrokeWidth(6);
         //vertical part of 7
@@ -455,7 +490,8 @@ public class DisplayFragment extends Fragment {
 
         //Line 4
         Paint paint24 = new Paint();
-        paint24.setColor(Color.GREEN);
+//        paint24.setColor(Color.GREEN);
+        paint24.setColor(colors.get(3));
         paint24.setStrokeCap(Paint.Cap.ROUND);
         paint24.setStrokeWidth(6);
         //vertical part of 4
@@ -469,7 +505,8 @@ public class DisplayFragment extends Fragment {
 
         //Line 6
         Paint paint25 = new Paint();
-        paint25.setColor(Color.GREEN);
+//        paint25.setColor(Color.GREEN);
+        paint25.setColor(colors.get(5));
         paint25.setStrokeCap(Paint.Cap.ROUND);
         paint25.setStrokeWidth(6);
         //vertical part of 6
@@ -488,7 +525,8 @@ public class DisplayFragment extends Fragment {
 
         //Line 3
         Paint paint26 = new Paint();
-        paint26.setColor(Color.GREEN);
+//        paint26.setColor(Color.GREEN);
+        paint26.setColor(colors.get(2));
         paint26.setStrokeCap(Paint.Cap.ROUND);
         paint26.setStrokeWidth(6);
         //vertical part of 3
@@ -535,6 +573,9 @@ public class DisplayFragment extends Fragment {
             Log.e("mqtt-d", mqttMessage.toString());
             ars = s2a(mqttMessage.toString());
             Log.e("s2a-d", String.valueOf(ars));
+            colors = i2c(ars);
+            Log.e("i2c-d", String.valueOf(ars));
+            loadCanvas();
         }
 
         @Override
@@ -554,7 +595,9 @@ public class DisplayFragment extends Fragment {
 
     public List<Integer> i2c(List<Integer> array){
         List<Integer> status = new ArrayList<>();
-        for(int i = 1; i< array.size(); i++){
+        if(array.size() > 20){
+            Toast.makeText(getContext(),"Wrong data, try again",Toast.LENGTH_SHORT).show();}
+        for(int i = 0; i< array.size(); i++){
             if(array.get(i)== 0){status.add(Color.BLACK);}
             if(array.get(i)== 1){status.add(Color.GREEN);}
             if(array.get(i)== 2){status.add(Color.RED);}
@@ -562,4 +605,13 @@ public class DisplayFragment extends Fragment {
         return status;
     }
 
+    public ArrayList<Integer> initArrayList()
+    {
+        ArrayList<Integer> list = new ArrayList<>();
+        for (int i = 0; i < 20;i++)
+        {
+            list.add(0);
+        }
+        return list;
+    }
 }
