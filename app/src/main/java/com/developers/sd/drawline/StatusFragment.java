@@ -118,13 +118,13 @@ public class StatusFragment extends Fragment {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
                     // We are connected
-                    Log.e(TAG, "onSuccess");
-                    MqttMessage message = new MqttMessage("Hello, I am an Android Mqtt Client.".getBytes());
-                    message.setQos(2);
-                    message.setRetained(false);
+//                    Log.e(TAG, "onSuccess");
+//                    MqttMessage message = new MqttMessage("Hello, I am an Android Mqtt Client.".getBytes());
+//                    message.setQos(2);
+//                    message.setRetained(false);
 
                     try {
-                        client.publish(topic, message);
+//                        client.publish(topic, message);
                         Log.e("mqtt", "Message published");
                         MqttMessage status = new MqttMessage(Arrays.toString(lineAdapter.getStatusList()).getBytes());
                         Log.e(TAG, status.toString());
@@ -190,7 +190,7 @@ public class StatusFragment extends Fragment {
         public void bindLine(Line line){
             mline = line;
             title.setText(mline.getTitle());
-            if(mline.getStatus() == 1) {
+            if(mline.getStatus() == 1 || mline.getStatus() == 2) {
                 status.setChecked(true);
             }
             else {
