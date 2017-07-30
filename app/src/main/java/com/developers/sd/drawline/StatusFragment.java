@@ -52,7 +52,8 @@ public class StatusFragment extends Fragment {
 
     private MqttAndroidClient client;
     private String clientId;
-    private String topic = "topic/fog";
+    private String topic_pub = "bus14/pub";
+    private String topic_sub = "bus14/#";
     private FloatingActionButton fab;
 
     @Override
@@ -95,7 +96,7 @@ public class StatusFragment extends Fragment {
                 MqttMessage status = new MqttMessage(Arrays.toString(lineAdapter.getStatusList()).getBytes());
                 Log.e(TAG, status.toString());
                 try {
-                    client.publish(topic, status);
+                    client.publish(topic_pub, status);
                 } catch (MqttException e) {
                     e.printStackTrace();
                 }
@@ -103,7 +104,7 @@ public class StatusFragment extends Fragment {
         });
 
 
-                clientId = MqttClient.generateClientId();
+        clientId = MqttClient.generateClientId();
         client = new MqttAndroidClient(this.getContext(), "tcp://broker.hivemq.com:1883", clientId);
         client.setCallback(new MqttCallbackHandler(client));
 
@@ -128,7 +129,7 @@ public class StatusFragment extends Fragment {
                         Log.e("mqtt", "Message published");
                         MqttMessage status = new MqttMessage(Arrays.toString(lineAdapter.getStatusList()).getBytes());
                         Log.e(TAG, status.toString());
-                        client.publish(topic, status);
+                        client.publish(topic_pub, status);
                     }
                     catch (MqttPersistenceException e) {
                         e.printStackTrace();
@@ -138,7 +139,7 @@ public class StatusFragment extends Fragment {
                     }
 
                     try {
-                        IMqttToken subToken = client.subscribe(topic, 1);
+                        IMqttToken subToken = client.subscribe(topic_sub, 1);
                         subToken.setActionCallback(new IMqttActionListener() {
                             @Override
                             public void onSuccess(IMqttToken asyncActionToken) {

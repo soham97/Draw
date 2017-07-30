@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/Draw.iml" filepath="$PROJECT_DIR$/Draw.iml" />
       <module fileurl="file://$PROJECT_DIR$/DrawLine.iml" filepath="$PROJECT_DIR$/DrawLine.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>

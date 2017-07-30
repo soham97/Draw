@@ -51,7 +51,7 @@ public class DisplayFragment extends Fragment {
 
     private MqttAndroidClient client;
     private String clientId;
-    private String topic = "topic/fog";
+    private String topic_sub = "bus14/#";
     private FloatingActionButton fab;
     private List<Integer> ars = new ArrayList<>();
     private List<Integer> colors = new ArrayList<>();
@@ -109,7 +109,7 @@ public class DisplayFragment extends Fragment {
                     Log.e(TAG, "onSuccess");
 
                     try {
-                        IMqttToken subToken = client.subscribe(topic, 1);
+                        IMqttToken subToken = client.subscribe(topic_sub, 1);
                         subToken.setActionCallback(new IMqttActionListener() {
                             @Override
                             public void onSuccess(IMqttToken asyncActionToken) {
